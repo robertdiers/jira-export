@@ -8,4 +8,4 @@ java -jar jira-export-jar-with-dependencies.jar jira-instance-url project user p
 
 true/false flag is used to export work log or not
 
-[Download](target)
+[Download](target/jira-export-jar-with-dependencies.jar)
