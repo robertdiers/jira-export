@@ -12,3 +12,6 @@ true/false flag is used to export work log or not
 
 Using this approach you will be able to export nearly all Jira data, you simply have to extend the used classes with attributes from Jira API documentation.
 
+
+[https://medium.com/@robertdiers/the-coffee-break-statement-using-the-jira-api-76007e0713e0](https://medium.com/@robertdiers/the-coffee-break-statement-using-the-jira-api-76007e0713e0)
+
