@@ -1,6 +1,6 @@
 # Jira Export
 
-A simple framework to export Jira issues and work log.
+A simple framework to export Jira issues, work log and change log.
 
 ### USAGE:
 ```shell
