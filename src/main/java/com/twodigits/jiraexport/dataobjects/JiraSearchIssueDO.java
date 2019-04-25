@@ -13,14 +13,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class JiraSearchIssueDO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	private String expand;
-	private String id;
-	private String key;
-	private JiraSearchIssueFieldsDO fields;
-	
-	public JiraSearchIssueDO() {}	
+
+    private static final long serialVersionUID = 1L;
+    private String expand;
+    private String id;
+    private String key;
+    private JiraSearchIssueFieldsDO fields;
+    private JiraSearchIssueChangelogDO changelog;
+
+    public JiraSearchIssueDO() {}
 
 	@XmlElement(name="expand")
 	public String getExpand() {
@@ -54,8 +55,11 @@ public class JiraSearchIssueDO implements Serializable {
 		return fields;
 	}
 
-	public void setFields(JiraSearchIssueFieldsDO fields) {
-		this.fields = fields;
-	}	
-	
+    public void setFields (JiraSearchIssueFieldsDO fields) { this.fields = fields; }
+
+    @XmlElement(name="changelog")
+    public JiraSearchIssueChangelogDO getChangelog () { return changelog; }
+
+    public void setChangelog (JiraSearchIssueChangelogDO changelog) { this.changelog = changelog; }
+
 }

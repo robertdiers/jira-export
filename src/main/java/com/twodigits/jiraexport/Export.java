@@ -9,9 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.twodigits.jiraexport.dataobjects.JiraSearchIssueDO;
-import com.twodigits.jiraexport.dataobjects.JiraSearchResultDO;
-import com.twodigits.jiraexport.dataobjects.JiraSearchWorklogDO;
+import com.twodigits.jiraexport.dataobjects.*;
 import com.twodigits.jiraexport.external.JiraService;
 import com.twodigits.jiraexport.util.ExcelXmlExportHelper;
 
@@ -32,7 +30,7 @@ public class Export {
 		
 		try {
 			if (args.length != 5) {
-				System.out.println("usage: <jira-instance-url> <project> <user> <password> <true/false>");				
+				System.out.println("usage: <jira-instance-url> <project> <user> <password> <worklog: true/false> <changelog: true/false>");
 			}
 			
 			String url = args[0];
@@ -40,6 +38,7 @@ public class Export {
 			String user = args[2];
 			String password = args[3];
 			String readworklog = args[4];
+          	String readchangelog = args[5];
 			
 			System.out.println("reading issues from " + url + " for " + project + "...");
 			JiraService service = new JiraService(user, password);
@@ -69,14 +68,17 @@ public class Export {
 			headlines.add("REMAIN_EST_SEC");
 			headlines.add("TIME_SPEND_SEC");
 			headlines.add("SUMMARY");
-			ExcelXmlExportHelper.writeXmlWorksheetHeader(buf, "Issues", headlines, result.getIssues().size());		
+			headlines.add("COMMENT_CREATED");
+			headlines.add("COMMENT_UPDATED");
+			headlines.add("COMMENT");
+			ExcelXmlExportHelper.writeXmlWorksheetHeader(buf, "Issues", headlines, result.getIssues().size());
 			
 			//data issues
 			int actual_rowcount = 0;		
 			for(JiraSearchIssueDO temp : result.getIssues())
-			{	
+			{
 				actual_rowcount++;
-				ExcelXmlExportHelper.writeXmlRowHeader(buf);				
+				ExcelXmlExportHelper.writeXmlRowHeader(buf, temp.getFields().getComment().getTotal());
 				ExcelXmlExportHelper.writeXmlRowCell(buf, "Number", temp.getId(), actual_rowcount);
 				ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getKey(), actual_rowcount);
 				if (temp.getFields().getStatus() != null)
@@ -91,7 +93,7 @@ public class Export {
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getCustomfield_10401().getValue(), actual_rowcount);
 				else
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
-				ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getCustomfield_10504(), actual_rowcount);				
+				ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getCustomfield_10504(), actual_rowcount);
 				ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getCreated()), actual_rowcount);
 				ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getResolutiondate()), actual_rowcount);
 				if (temp.getFields().getTimetracking() != null) {
@@ -110,10 +112,106 @@ public class Export {
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "Number", "", actual_rowcount);
 				}
 				ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getSummary(), actual_rowcount);
-				ExcelXmlExportHelper.writeXmlRowFooter(buf);					
-			}			
+				if (temp.getFields().getComment().getComments() != null){
+					StringBuilder comments_created = new StringBuilder();
+					StringBuilder comments_updated = new StringBuilder();
+					StringBuilder comments = new StringBuilder();
+					long counter = 0;
+					for (JiraSearchIssueFieldCommentCommentsDO comment : temp.getFields().getComment().getComments()){
+						counter++;
+						comments_created.append(counter + ") " + comment.getCreated()+" "+comment.getAuthor().getName() + System.lineSeparator());
+						if (comment.getUpdated() != null){
+							comments_updated.append(counter + ") " + comment.getUpdated()+" "+comment.getUpdateAuthor().getName() + System.lineSeparator());
+						}else {
+							comments_updated.append(counter +") none"+System.lineSeparator());
+						}
+						comments.append(counter + ") " + comment.getBody()+System.lineSeparator());
+					}
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", comments_created.toString(), actual_rowcount);
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", comments_updated.toString(), actual_rowcount);
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", comments.toString(), actual_rowcount);
+				}else {
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+				}
+
+				ExcelXmlExportHelper.writeXmlRowFooter(buf);
+			}
 			ExcelXmlExportHelper.writeXmlWorksheetFooter(buf, headlines.size());
-			
+
+			if (readchangelog.equalsIgnoreCase("true")) {
+				System.out.println("writing changelog to export xml...");
+
+				//headlines worklog
+				headlines = new ArrayList<String>();
+				headlines.add("ID");
+				headlines.add("KEY");
+				headlines.add("ISSUE_CREATED");
+				headlines.add("ISSUE_UPDATED");
+				headlines.add("CHANGE_CREATED");
+				headlines.add("AUTHOR");
+				headlines.add("FIELD");
+				headlines.add("CHANGED_FROM");
+				headlines.add("CHANGED_TO");
+				ExcelXmlExportHelper.writeXmlWorksheetHeader(buf, "Changelog", headlines, result.getIssues().size());
+
+				//data changelog
+				actual_rowcount = 0;
+				for (JiraSearchIssueDO temp : result.getIssues()){
+					actual_rowcount++;
+					ExcelXmlExportHelper.writeXmlRowHeader(buf, temp.getChangelog().getTotal());
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "Number", temp.getId(), actual_rowcount);
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getKey(), actual_rowcount);
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getCreated()), actual_rowcount);
+					if (temp.getFields().getUpdated() != null){
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getUpdated()), actual_rowcount);
+					}else {
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					}
+					if (temp.getChangelog().getTotal() > 0){
+						StringBuilder created_date = new StringBuilder();
+						StringBuilder created_author = new StringBuilder();
+						StringBuilder created_fields = new StringBuilder();
+						StringBuilder created_from = new StringBuilder();
+						StringBuilder created_to = new StringBuilder();
+						long counter = 0;
+						for (JiraSearchIssueChangelogHistoriesDO history : temp.getChangelog().getHistories()){
+							counter++;
+							created_date.append(counter + ") " + history.getCreated() + System.lineSeparator());
+							created_author.append(counter + ") " + history.getAuthor().getName() + System.lineSeparator());
+							for (JiraSearchIssueChangelogHistoriesItemDO item : history.getItems()){
+								created_fields.append("to " + counter + " - " + item.getField() + System.lineSeparator());
+								if (item.getFromString()!=null && !item.getFromString().equals("")){
+									created_from.append("to " +counter + " - " + item.getFromString()+ System.lineSeparator());
+								} else {
+									created_from.append("to " +counter + " - none" + System.lineSeparator());
+								}
+								if (item.getToString()!=null && !item.getToString().equals("")){
+									created_to.append("to " +counter + " - " + item.getToString() + System.lineSeparator());
+								} else {
+									created_to.append("to " +counter + " - none" + System.lineSeparator());
+								}
+							}
+						}
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", created_date.toString(), actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", created_author.toString(), actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", created_fields.toString(), actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", created_from.toString(), actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", created_to.toString(), actual_rowcount);
+					}else {
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					}
+					ExcelXmlExportHelper.writeXmlRowFooter(buf);
+				}
+
+				ExcelXmlExportHelper.writeXmlWorksheetFooter(buf, headlines.size());
+			}
+
 			if (readworklog.equalsIgnoreCase("true")) {
 				System.out.println("reading worklog...");		
 				
@@ -152,7 +250,7 @@ public class Export {
 					if (temp != null) {
 						for (JiraSearchWorklogDO wl : temp) {
 							actual_rowcount++;		
-							ExcelXmlExportHelper.writeXmlRowHeader(buf);				
+							ExcelXmlExportHelper.writeXmlRowHeader(buf,0);
 							ExcelXmlExportHelper.writeXmlRowCell(buf, "Number", idandkeyarray[0], actual_rowcount);		
 							ExcelXmlExportHelper.writeXmlRowCell(buf, "String", idandkeyarray[1], actual_rowcount);
 							ExcelXmlExportHelper.writeXmlRowCell(buf, "String", wl.getAuthor().getName(), actual_rowcount);
@@ -172,7 +270,7 @@ public class Export {
 			ExcelXmlExportHelper.writeXmlFooter(buf);
 			
 			//write to disc
-			Files.write(Paths.get("export.xml"), buf.toString().getBytes());
+			Files.write(Paths.get("jira-export.xml"), buf.toString().getBytes());
 			
 			System.out.println("DONE!");
 			

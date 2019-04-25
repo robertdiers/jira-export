@@ -14,14 +14,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class JiraSearchInputDO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	private String jql = "";
-	private long maxResults;
-	private List<String> fields;	
-	private long startAt = 0;
-	
-	public JiraSearchInputDO() {}
+    private static final long serialVersionUID = 1L;
+
+    private String jql = "";
+    private long maxResults;
+    private List<String> fields;
+    private long startAt = 0;
+    private List<String> expands;
+
+    public JiraSearchInputDO() {}
 
 	@XmlElement(name="jql")
 	public String getJql() {
@@ -55,8 +56,17 @@ public class JiraSearchInputDO implements Serializable {
 		return startAt;
 	}
 
-	public void setStartAt(long startAt) {
-		this.startAt = startAt;
-	}	
-	
+    public void setStartAt(long startAt) {
+        this.startAt = startAt;
+    }
+
+    @XmlElement(name="expand")
+    public List<String> getExpands() {
+        return expands;
+    }
+
+    public void setExpands(List<String> expands) {
+        this.expands = expands;
+    }
+
 }
