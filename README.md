@@ -2,7 +2,7 @@
 
 A simple framework to export Jira issues and work log.
 
-###USAGE:
+### USAGE:
 <jira-instance-url> <project> <user> <password> <worklog: true/false> <changelog: true/false>
 
 ```shell
