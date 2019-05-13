@@ -7,12 +7,12 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * XML / JSON Conversation adapter
- * @author jan.degen
+ * @author robert.diers
  */
-public class JiraDateAdapter extends XmlAdapter<String, Date> {
+public class JiraDateTimeAdapter extends XmlAdapter<String, Date> {
 	
-	//2018-10-30
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	//2018-10-30T13:43:26.000+0100
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     public String marshal(Date date) throws Exception 
     {

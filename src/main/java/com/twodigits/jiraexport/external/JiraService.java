@@ -28,7 +28,7 @@ public class JiraService {
 
 	private static final String api = "/jira/rest/api/2/search";
 	private static final String api_worklog = "/jira/rest/api/2/issue/###JIRAKEY###/worklog";
-	private static final String fields = "id,key,created,resolution,resolutiondate,summary,status,customfield_10401,customfield_10504,timetracking,comment,updated";
+	private static final String fields = "id,key,created,resolution,resolutiondate,summary,status,customfield_10401,customfield_10504,timetracking,comment,updated,duedate,assignee,customfield_10002,environment,labels";
 	private static final int maxresultsize = 1000; //jira maximum
 	private static final String expands = "changelog";
 

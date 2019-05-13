@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.plaf.synth.Region;
+
 import com.twodigits.jiraexport.dataobjects.*;
 import com.twodigits.jiraexport.external.JiraService;
 import com.twodigits.jiraexport.util.ExcelXmlExportHelper;
@@ -32,13 +34,13 @@ public class Export {
 			if (args.length != 5) {
 				System.out.println("usage: <jira-instance-url> <project> <user> <password> <worklog: true/false> <changelog: true/false>");
 			}
-			
-			String url = args[0];
-			String project = args[1];
-			String user = args[2];
-			String password = args[3];
-			String readworklog = args[4];
-          	String readchangelog = args[5];
+						
+			String url = 			args[0];
+			String project = 		args[1];
+			String user = 			args[2];
+			String password =  		args[3];
+			String readworklog = 	args[4];
+          	String readchangelog = 	args[5];
 			
 			System.out.println("reading issues from " + url + " for " + project + "...");
 			JiraService service = new JiraService(user, password);
@@ -94,8 +96,8 @@ public class Export {
 				else
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
 				ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getCustomfield_10504(), actual_rowcount);
-				ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getCreated()), actual_rowcount);
-				ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getResolutiondate()), actual_rowcount);
+				ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(temp.getFields().getCreated()), actual_rowcount);
+				ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(temp.getFields().getResolutiondate()), actual_rowcount);
 				if (temp.getFields().getTimetracking() != null) {
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getTimetracking().getOriginalEstimate(), actual_rowcount);
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getTimetracking().getRemainingEstimate(), actual_rowcount);
@@ -143,12 +145,18 @@ public class Export {
 			if (readchangelog.equalsIgnoreCase("true")) {
 				System.out.println("writing changelog to export xml...");
 
-				//headlines worklog
+				// ---- HEADLINES CHANGELOG ----
 				headlines = new ArrayList<String>();
 				headlines.add("ID");
 				headlines.add("KEY");
+				headlines.add("ASSIGNEE");
+				headlines.add("STATUS");
 				headlines.add("ISSUE_CREATED");
 				headlines.add("ISSUE_UPDATED");
+				headlines.add("DUE_DATE");
+				headlines.add("STORY_POINTS");
+				headlines.add("ENVIRONMENT");
+				headlines.add("LABELS");
 				headlines.add("CHANGE_CREATED");
 				headlines.add("AUTHOR");
 				headlines.add("FIELD");
@@ -156,19 +164,68 @@ public class Export {
 				headlines.add("CHANGED_TO");
 				ExcelXmlExportHelper.writeXmlWorksheetHeader(buf, "Changelog", headlines, result.getIssues().size());
 
-				//data changelog
+				// ---- DATA CHANGELOG ----
 				actual_rowcount = 0;
 				for (JiraSearchIssueDO temp : result.getIssues()){
 					actual_rowcount++;
 					ExcelXmlExportHelper.writeXmlRowHeader(buf, temp.getChangelog().getTotal());
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "Number", temp.getId(), actual_rowcount);
 					ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getKey(), actual_rowcount);
-					ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getCreated()), actual_rowcount);
-					if (temp.getFields().getUpdated() != null){
-						ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(temp.getFields().getUpdated()), actual_rowcount);
-					}else {
+					
+					// ---- WRITE ASSIGNEE ----
+					if(temp.getFields().getAssignee() != null)
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getAssignee().getName(), actual_rowcount);
+					else
 						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
-					}
+					
+					// ---- WRITE STATUS ----
+					if (temp.getFields().getStatus() != null)
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getStatus().getName(), actual_rowcount);
+					else
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					
+					// ---- WRITE ISSUE_CREATED ----
+					ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(temp.getFields().getCreated()), actual_rowcount);
+					
+					// ---- WRITE ISSUE_UPDATED ----
+					if (temp.getFields().getUpdated() != null)
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(temp.getFields().getUpdated()), actual_rowcount);
+					else 
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					
+					
+					// ---- WRITE DUE_DATE ----
+					if (temp.getFields().getDuedate() != null)					
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(temp.getFields().getDuedate()), actual_rowcount);
+					else 
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					
+					
+					// ---- WRITE STORY POINTS ----
+					if(temp.getFields().getCustomfield_10002() != 0)
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "Number", temp.getFields().getCustomfield_10002(), actual_rowcount);
+					else
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					
+					// ---- WRITE ENVIROMENT ----
+					if(temp.getFields().getEnvironment() != null)
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", temp.getFields().getEnvironment(), actual_rowcount);
+					else
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					
+					// ---- WRITE LABELS ----
+					if(temp.getFields().getLabels() != null)
+					{
+						StringBuilder labels = new StringBuilder();
+						for(String label : temp.getFields().getLabels())
+						{
+							labels.append(label + System.lineSeparator());
+						}
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", labels, actual_rowcount);
+					}						
+					else
+						ExcelXmlExportHelper.writeXmlRowCell(buf, "String", "", actual_rowcount);
+					
 					if (temp.getChangelog().getTotal() > 0){
 						StringBuilder created_date = new StringBuilder();
 						StringBuilder created_author = new StringBuilder();
@@ -256,9 +313,9 @@ public class Export {
 							ExcelXmlExportHelper.writeXmlRowCell(buf, "String", wl.getAuthor().getName(), actual_rowcount);
 							ExcelXmlExportHelper.writeXmlRowCell(buf, "String", wl.getTimeSpent(), actual_rowcount);
 							ExcelXmlExportHelper.writeXmlRowCell(buf, "Number", wl.getTimeSpentSeconds(), actual_rowcount);
-							ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(wl.getStarted()), actual_rowcount);
-							ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(wl.getCreated()), actual_rowcount);
-							ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDate(wl.getUpdated()), actual_rowcount);
+							ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(wl.getStarted()), actual_rowcount);
+							ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(wl.getCreated()), actual_rowcount);
+							ExcelXmlExportHelper.writeXmlRowCell(buf, "DateTime", ExcelXmlExportHelper.formatDateTime(wl.getUpdated()), actual_rowcount);
 							ExcelXmlExportHelper.writeXmlRowFooter(buf);
 						}
 					}

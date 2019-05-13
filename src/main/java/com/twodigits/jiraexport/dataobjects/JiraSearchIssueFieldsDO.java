@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.twodigits.jiraexport.adapter.JiraDateAdapter;
+import com.twodigits.jiraexport.adapter.JiraDateTimeAdapter;
 
 /**
  * search in Jira
@@ -22,12 +23,16 @@ public class JiraSearchIssueFieldsDO implements Serializable {
 	private String customfield_10504 = ""; 						//externalId
 
 	private String summary = "";
+	
+	private JiraSearchIssueAuthorDO assignee;
 
 	private JiraSearchIssueFieldResolutionDO resolution;
 
 	private Date resolutiondate;
 
 	private Date created;
+	
+	private Date duedate;
 
 	private JiraSearchIssueFieldStatusDO status;
 
@@ -36,7 +41,15 @@ public class JiraSearchIssueFieldsDO implements Serializable {
 	private Date updated;
 
 	private JiraSearchIssueFieldCommentDO comment;
+	
+	//Story Points
+	private int customfield_10002;
+	
+	private String environment;
+	
+	private String[] labels;
 
+	private JiraDateTimeAdapter jdta = new JiraDateTimeAdapter();
 	private JiraDateAdapter jda = new JiraDateAdapter();
 
 	public JiraSearchIssueFieldsDO() {}
@@ -62,24 +75,24 @@ public class JiraSearchIssueFieldsDO implements Serializable {
 	public void setResolution (JiraSearchIssueFieldResolutionDO resolution) { this.resolution = resolution; }
 
 	@XmlElement(name = "resolutiondate")
-	@XmlJavaTypeAdapter(JiraDateAdapter.class)
+	@XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
 	public Date getResolutiondate () { return resolutiondate; }
 
 	public void setResolutiondate (String resolutiondate) {
 		try {
-			this.resolutiondate = jda.unmarshal(resolutiondate);
+			this.resolutiondate = jdta.unmarshal(resolutiondate);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
 	@XmlElement(name = "created")
-	@XmlJavaTypeAdapter(JiraDateAdapter.class)
+	@XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
 	public Date getCreated () { return created; }
 
 	public void setCreated (String created) {
 		try {
-			this.created = jda.unmarshal(created);
+			this.created = jdta.unmarshal(created);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
@@ -104,14 +117,29 @@ public class JiraSearchIssueFieldsDO implements Serializable {
 	}
 
 	@XmlElement(name = "updated")
-	@XmlJavaTypeAdapter(JiraDateAdapter.class)
+	@XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
 	public Date getUpdated () { return updated; }
 
 	public void setUpdated (String updated) {
 		try {
-			this.updated = jda.unmarshal(updated);
+			this.updated = jdta.unmarshal(updated);
 		}catch (Exception e){
 			e.printStackTrace();
+		}
+	}
+	@XmlElement(name = "duedate")
+	@XmlJavaTypeAdapter(JiraDateAdapter.class)
+	public Date getDuedate() { return duedate;}
+	
+	public void setDuedate(String duedate)
+	{
+		try
+		{
+			this.duedate = jda.unmarshal(duedate);			
+		}
+		catch(Exception exc)
+		{
+			exc.printStackTrace();
 		}
 	}
 
@@ -120,4 +148,27 @@ public class JiraSearchIssueFieldsDO implements Serializable {
 
 	public void setComment (JiraSearchIssueFieldCommentDO comment) { this.comment = comment; }
 
+	@XmlElement(name = "assignee")
+    public JiraSearchIssueAuthorDO getAssignee () { return assignee; }
+
+    public void setAssignee(JiraSearchIssueAuthorDO assignee) { this.assignee = assignee; }
+
+	@XmlElement(name="customfield_10002")
+	public int getCustomfield_10002() { return customfield_10002; }
+	
+	public void setCustomfield_10002(int customfield_10002)
+	{
+		this.customfield_10002 = customfield_10002;
+	}
+	
+	@XmlElement(name = "environment")
+	public String getEnvironment() { return environment; }
+	
+	public void setEnvironment(String environment) {this.environment =environment; }
+	
+	@XmlElement(name="labels")
+	public String[] getLabels() { return labels; }
+	
+	public void setLabels(String[] labels) { this.labels = labels; }
+	
 }

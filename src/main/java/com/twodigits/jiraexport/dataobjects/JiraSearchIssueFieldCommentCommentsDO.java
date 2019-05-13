@@ -1,7 +1,7 @@
 package com.twodigits.jiraexport.dataobjects;
 
 
-import com.twodigits.jiraexport.adapter.JiraDateAdapter;
+import com.twodigits.jiraexport.adapter.JiraDateTimeAdapter;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,7 +20,7 @@ public class JiraSearchIssueFieldCommentCommentsDO implements Serializable {
     private JiraSearchIssueAuthorDO updateAuthor;
     private Date created;
     private Date updated;
-    private JiraDateAdapter jda = new JiraDateAdapter();
+    private JiraDateTimeAdapter jda = new JiraDateTimeAdapter();
 
     public JiraSearchIssueFieldCommentCommentsDO() {}
 
@@ -45,7 +45,7 @@ public class JiraSearchIssueFieldCommentCommentsDO implements Serializable {
     public void setUpdateAuthor (JiraSearchIssueAuthorDO updateAuthor) { this.updateAuthor = updateAuthor; }
 
     @XmlElement(name = "created")
-    @XmlJavaTypeAdapter(JiraDateAdapter.class)
+    @XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
     public Date getCreated () { return created; }
 
     public void setCreated (String created) {
@@ -57,7 +57,7 @@ public class JiraSearchIssueFieldCommentCommentsDO implements Serializable {
     }
 
     @XmlElement(name = "updated")
-    @XmlJavaTypeAdapter(JiraDateAdapter.class)
+    @XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
     public Date getUpdated () { return updated; }
 
     public void setUpdated (String updated) {

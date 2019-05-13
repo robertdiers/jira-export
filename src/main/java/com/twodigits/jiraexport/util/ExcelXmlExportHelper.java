@@ -15,8 +15,7 @@ public class ExcelXmlExportHelper {
 	public static int maxcolorcount = 2;
 
 	//2009-04-20T00:00:00.000
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
+	private static SimpleDateFormat sdtf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	/**
 	 * Excel XML header
 	 * @param buf
@@ -390,8 +389,8 @@ public class ExcelXmlExportHelper {
 	 * @param millis
 	 * @return
 	 */
-	public static String formatDate(long millis) {
-		return sdf.format(new java.util.Date(millis)) + ".000";
+	public static String formatDateTime(long millis) {
+		return sdtf.format(new java.util.Date(millis)) + ".000";
 	}
 
 	/**
@@ -399,12 +398,11 @@ public class ExcelXmlExportHelper {
 	 * @param millis
 	 * @return
 	 */
-	public static String formatDate(Date date_value) {
+	public static String formatDateTime(Date date_value) {
 		if (date_value == null) return "";
-		String result = sdf.format(date_value) + ".000";
+		String result = sdtf.format(date_value) + ".000";
 		//0001-01-01
 		if (result.startsWith("0001-01-01")) return "";
 		return result;
 	}
-
 }

@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.twodigits.jiraexport.adapter.JiraDateAdapter;
+import com.twodigits.jiraexport.adapter.JiraDateTimeAdapter;
 
 /**
  * search in Jira
@@ -30,7 +30,7 @@ public class JiraSearchWorklogDO implements Serializable {
 	
 	private Long timeSpentSeconds;	
 	
-	private JiraDateAdapter jda = new JiraDateAdapter();
+	private JiraDateTimeAdapter jda = new JiraDateTimeAdapter();
 	
 	public JiraSearchWorklogDO() {}
 
@@ -44,7 +44,7 @@ public class JiraSearchWorklogDO implements Serializable {
 	}
 
 	@XmlElement(name="started")
-	@XmlJavaTypeAdapter(JiraDateAdapter.class)
+	@XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
 	public Date getStarted() {
 		return started;
 	}
@@ -58,7 +58,7 @@ public class JiraSearchWorklogDO implements Serializable {
 	}
 
 	@XmlElement(name="created")
-	@XmlJavaTypeAdapter(JiraDateAdapter.class)
+	@XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
 	public Date getCreated() {
 		return created;
 	}
@@ -72,7 +72,7 @@ public class JiraSearchWorklogDO implements Serializable {
 	}
 
 	@XmlElement(name="updated")
-	@XmlJavaTypeAdapter(JiraDateAdapter.class)
+	@XmlJavaTypeAdapter(JiraDateTimeAdapter.class)
 	public Date getUpdated() {
 		return updated;
 	}

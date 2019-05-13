@@ -2,7 +2,7 @@ package com.twodigits.jiraexport.dataobjects;
 
 
 
-import com.twodigits.jiraexport.adapter.JiraDateAdapter;
+import com.twodigits.jiraexport.adapter.JiraDateTimeAdapter;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -19,7 +19,7 @@ public class JiraSearchIssueChangelogHistoriesDO implements Serializable {
     private JiraSearchIssueAuthorDO author;
     private Date created;
     private List<JiraSearchIssueChangelogHistoriesItemDO> items;
-    private JiraDateAdapter jda = new JiraDateAdapter();
+    private JiraDateTimeAdapter jda = new JiraDateTimeAdapter();
 
     public JiraSearchIssueChangelogHistoriesDO() {}
 
